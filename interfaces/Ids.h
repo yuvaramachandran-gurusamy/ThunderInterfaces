@@ -287,8 +287,6 @@ namespace Exchange {
         ID_DTV_COMPONENT_TAG_ITERATOR,
         ID_DTV_TRANSPORT,
 
-        ID_MIRACAST,
-        ID_MIRACAST_NOTIFICATION = ID_MIRACAST + 1,
     };
 }
 }
