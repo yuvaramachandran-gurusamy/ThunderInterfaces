@@ -1,0 +1,532 @@
+{
+	"$schema": "interface.schema.json",
+	"jsonrpc": "2.0",
+	"info": {
+		"title": "MiracastPlayer API",
+		"class": "MiracastPlayerJSONRPC",
+		"description": "MiracastPlayer JSON-RPC interface"
+	},
+	"common": {
+		"$ref": "common.json"
+	},
+	"definitions": {
+		"source_device": {
+			"ip": {
+				"description":"ip address of the source device",
+				"type":"string",
+				"example": "xx.xx.xx.xx"
+			},
+			"mac": {
+				"description":"MAC address of the source device",
+				"type":"string",
+				"example": "XX:XX:XX:XX:XX:XX"
+			},
+			"name": {
+				"description":"WiFi-Direct Source name",
+				"type":"string",
+				"example": "ABCD"
+			}
+		},
+		"sink_device": {
+			"ip": {
+				"description":"IP address of the sink device",
+				"type":"string",
+				"example":"xx.xx.xx.xx"
+			}
+		},
+		"video_rectangle": {
+			"description": "Geometry of the Video Coordinates",
+			"type": "object",
+			"properties": {
+				"X": {
+					"description": "StartX of Video Rectangle",
+					"type": "number",
+					"example": "0...n"
+				},
+				"Y": {
+					"description": "StartY of Video Rectangle",
+					"type": "number",
+					"example": "0...n"
+				},
+				"W": {
+					"description": "Width of Video Rectangle",
+					"type": "number",
+					"example": "1...n"
+				},
+				"H": {
+					"description": "Height of Video Rectangle",
+					"type": "number",
+					"example": "1...n"
+				}
+			}
+		},
+		"player_state_params":{
+			"stop_reason_code": {
+				"description": "Reason code provided for stopRequest",
+				"type": "string",
+				"enum": [
+					"STOP_CONNECTION_ON_EXIT",
+					"STOP_CONNECTION_ON_NEW_REQUEST"
+				],
+				"enumvalues": [ 301 , 302 ]
+			},
+			"change_state": {
+				"description": "setting the player state",
+				"type": "string",
+				"example": "PLAY|PAUSE|STOP"
+			},
+			"current_state": {
+				"description": "setting the player state",
+				"type": "string",
+				"example": "INITIATED | INPROGRESS | PLAYING | STOPPED/IDLE"
+			},
+			"reason_code": {
+				"description": "Resolution supported by the Miracast spec",
+				"type": "string",
+				"enum": [
+					"SUCCESS",
+					"APP_REQUESTED_TO_STOP",
+					"SRC_DEVICE_REQUESTED_TO_STOP" ,
+					"RTSP_Failure",
+					"RTSP_Timeout",
+					"RTSP_Method_Not_Supported",
+					"GStreamer_Playback_Failure",
+					"Internal_Failure",
+					"APP_REQ_TO_STOP_FOR_NEW_CONNECTION"
+				],
+				"enumvalues": [ 200 , 201 , 202 , 203 , 204 , 205 , 206 , 207 , 208 ]
+			}
+		},
+		"videoformats": {
+			"description": "Supported Video formats",
+			"type": "object",
+			"native": {
+				"description": "Resolution supported by the Miracast spec",
+				"type": "string",
+				"enum": [ "RESOLUTION_NOT_SUPPORTED", "CEA", "VESA" , "HH" ],
+				"enumvalues": [ "0x00" , "0x01" , "0x02" , "0x04" ]
+			},
+			"display_mode_supported": {
+				"description": "Prefered display mode",
+				"type": "bool"
+			},
+			"h264_codecs": {
+				"description": "Supported h264 codecs",
+				"type": "object",
+				"profile": {
+					"description": "Supported Bitmap Profiles",
+					"type": "string",
+					"enum": [ "BMP_NOT_SUPPORTED", "CBP", "CHP", "BOTH" ],
+					"enumvalues": [ "0x00" , "0x01" , "0x02" , "0x03" ]
+				},
+				"level": {
+					"description": "Supported Bitmap Levels",
+					"type": "string",
+					"enum": [ "h264_3p1", "h264_3p2", "h264_4", "h264_4p1", "h264_4p2" ],
+					"enumvalues": [ "0x01", "0x02", "0x04", "0x08", "0x10" ]
+				},
+				"cea_mask": {
+					"description": "Supported CEA Resolutions",
+					"type": "string",
+					"enum": [ 
+						"CEA_640x480p60", "CEA_720x480p60", "CEA_720x480i60", "CEA_720x576p50",
+						"CEA_720x576i50", "CEA_1280x720p30", "CEA_1280x720p60", "CEA_1920x1080p30",
+						"CEA_1920x1080p60", "CEA_1920x1080i60", "CEA_1280x720p25", "CEA_1280x720p50",
+						"CEA_1920x1080p25", "CEA_1920x1080p50", "CEA_1920x1080i50", "CEA_1280x720p24",
+						"CEA_1920x1080p24"
+					],
+					"enumvalues": [
+						"0x00000001", "0x00000002", "0x00000004", "0x00000008", "0x00000010",
+						"0x00000020", "0x00000040", "0x00000080", "0x00000100", "0x00000200", 
+						"0x00000400", "0x00000800", "0x00001000", "0x00002000", "0x00004000",
+						"0x00008000", "0x00010000"
+					]
+				},
+				"vesa_mask": {
+					"description": "Supported VESA Resolutions",
+					"type": "string",
+					"enum": [
+						"VESA_800x600p30", "VESA_800x600p60", "VESA_1024x768p30", "VESA_1024x768p60",
+						"VESA_1152x864p30", "VESA_1152x864p60", "VESA_1280x768p30", "VESA_1280x768p60",
+						"VESA_1280x800p30", "VESA_1280x800p60", "VESA_1360x768p30", "VESA_1360x768p60",
+						"VESA_1366x768p30", "VESA_1366x768p60", "VESA_1280x1024p30", "VESA_1280x1024p60",
+						"VESA_1400x1050p30", "VESA_1400x1050p60", "VESA_1440x900p30", "VESA_1440x900p60",
+						"VESA_1600x900p30", "VESA_1600x900p60", "VESA_1600x1200p30", "VESA_1600x1200p60",
+						"VESA_1680x1024p30", "VESA_1680x1024p60", "VESA_1680x1050p30", "VESA_1680x1050p60",
+						"VESA_1920x1200p60"
+					],
+					"enumvalues": [
+						"0x00000001", "0x00000002", "0x00000004", "0x00000008",
+						"0x00000010", "0x00000020", "0x00000040", "0x00000080",
+						"0x00000100", "0x00000200", "0x00000400", "0x00000800",
+						"0x00001000", "0x00002000", "0x00004000", "0x00008000",
+						"0x00010000", "0x00020000", "0x00040000", "0x00080000",
+						"0x00100000", "0x00200000", "0x00400000", "0x00800000",
+						"0x01000000", "0x02000000", "0x04000000", "0x08000000",
+						"0x10000000"
+					]
+				},
+				"hh_mask": {
+					"description": "Supported HH Resolutions",
+					"type": "string",
+					"enum": [
+						"HH_800x480p60", "HH_854x480p30", "HH_854x480p60", "HH_864x480p30",
+						"HH_864x480p60", "HH_600x360p30", "HH_600x360p60", "HH_960x540p30",
+						"HH_960x540p60", "HH_848x480p30", "HH_848x480p60"
+					],
+					"enumvalues": [
+						"0x00000001", "0x00000002", "0x00000004", "0x00000008",
+						"0x00000010", "0x00000020", "0x00000040", "0x00000080",
+						"0x00000100", "0x00000200", "0x00000400"
+					]
+				},
+				"latency": {
+					"description": "latency in multiple of 5secs",
+					"type": "number"
+				},
+				"min_slice": {
+					"description": "minimum slice",
+					"type": "number"
+				},
+				"slice_encode": {
+					"description": "slice encode",
+					"type": "number"
+				},
+				"video_frame_skip_support": {
+					"description": "video frame skip supported or not",
+					"type": "boolean"
+				},
+				"max_skip_intervals": {
+					"description": "maximum skip intervals",
+					"type": "number"
+				},
+				"video_frame_rate_change_support": {
+					"description": "video frame rate change supported or not",
+					"type": "boolean"
+				}
+			}
+		},
+		"audioformats": {
+			"description": "Supported Audio Formats and Modes",
+			"type": "object",
+			"audio_format": {
+				"description": "Supported Audio Format",
+				"type": "string",
+				"enum": [ "LPCM", "AAC" , "AC3" ],
+				"enumvalues": [ "0x01" , "0x02" , "0x03" ]
+			},
+			"modes": {
+				"description": "Supported Audio Modes",
+				"type": "object",
+				"lpcm": {
+					"description": "Supported LPCM Modes",
+					"type": "string",
+					"enum": [ "CH2_44p1kHz", "CH2_48kHz" ],
+					"enumvalues": [ "0x01" , "0x02" ]
+				},
+				"aac": {
+					"description": "Supported AAC Modes",
+					"type": "string",
+					"enum": [ "CH2_48kHz", "CH4_48kHz", "CH6_48kHz", "CH8_48kHz" ],
+					"enumvalues": [ "0x01" , "0x02" , "0x04" , "0x08" ]
+				},
+				"ac3": {
+					"description": "Supported AC3 modes",
+					"type": "string",
+					"enum": [ "CH2_48kHz", "CH4_48kHz", "CH6_48kHz" ],
+					"enumvalues": [ "0x01" , "0x02" , "0x04" ]
+				}
+			}
+		},
+		"rtsp_wait_timeout": {
+			"Request": {
+				"description": "RTSP Request Wait Timeout in seconds",
+				"type": "number",
+				"example": "1...N"
+			},
+			"Response": {
+				"description": "RTSP Response Wait Timeout in seconds",
+				"type": "number",
+				"example": "1...N"
+			}
+		},
+		"logger_stats": {
+			"separate_logger": {
+				"type": "object",
+				"logfilename": {
+					"description": "Logfile name for Separate Logger",
+					"type": "string",
+					"example": "logfilename"
+				},
+				"status": {
+					"description": "Separate Logger 'ENABLE' or 'DISABLE' status",
+					"type": "string",
+					"example": "ENABLE|DISABLE"
+				}	
+			},
+			"loglevel": {
+				"description": "Logging level",
+				"type": "string",
+				"example": "FATAL|ERROR|WARNING|INFO|VERBOSE|TRACE"
+			}
+		}
+	},
+	"methods": {
+		"Initialize": {
+			"description": "Initialize",
+			"params": {
+				"$ref": "#/common/results/void"
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+		"Deinitialize": {
+			"description": "Deinitialize",
+			"params": {
+				"$ref": "#/common/results/void"
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+		"playRequest": {
+			"description": "To set the Miracast Player State to Play after the Miracast session like RTSP communication and GStreamer Playback",
+			"params": {
+				"type": "object",
+				"properties": {
+					"device_parameters": {
+						"description": "Source and Sink Device details like name,mac and ip address",
+						"type": "object",
+						"properties": {
+							"source_dev_ip": {
+								"$ref": "#/definitions/source_device/ip"
+							},
+							"source_dev_mac": {
+								"$ref": "#/definitions/source_device/mac"
+							},
+							"source_dev_name": {
+								"$ref": "#/definitions/source_device/name"
+							},
+							"sink_dev_ip": {
+								"$ref": "#/definitions/sink_device/ip"
+							}
+						}
+					},
+					"video_rectangle": {
+						"$ref": "#/definitions/video_rectangle"
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"stopRequest": {
+			"description": "To stop the Miracast Player to tear down the RTSP communication, stop/close the GStreamer pipeline, clean up, and reset the player state",
+			"params": {
+				"type": "object",
+				"properties": {
+					"reason_code": {
+						"$ref": "#/definitions/player_state_params/stop_reason_code"
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setVideoRectangle": {
+			"description": "To Set the Video Rectangle",
+			"params": {
+				"$ref": "#/definitions/video_rectangle"
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setPlayerState": {
+			"description": "To set the MiracastPlayer to PLAY/PAUSE/STOP the Miracast",
+			"params": {
+				"type": "object",
+				"properties": {
+					"state": {
+						"$ref": "#/definitions/player_state_params/change_state"
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setRTSPWaitTimeOut": {
+			"description": "To Set RTSP Request and Response Wait Timeout",
+			"params": {
+				"type": "object",
+				"properties": {
+					"Request": {
+						"$ref": "#/definitions/rtsp_wait_timeout/Request"
+					},
+					"Response": {
+						"$ref": "#/definitions/rtsp_wait_timeout/Response"
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setLogging": {
+			"description": "To set Logging Levels and Separate Logger configuration",
+			"params": {
+				"type": "object",
+				"properties": {
+					"separate_logger": {
+						"$ref": "#/definitions/logger_stats/separate_logger"
+					},
+					"level": {
+						"$ref": "#/definitions/logger_stats/loglevel"
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setAudioFormats": {
+			"description": "To Set the Audio Formats",
+			"params": {
+				"type": "object",
+				"properties": {
+					"audio_codecs": {
+						"description": "List of Supported Audio Codecs",
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"audio_format": {
+									"$ref": "#/definitions/audioformats/audio_format"
+								},
+								"modes": {
+									"type": "integer",
+									"if": { "properties": { "audio_format": { "const": 1}}},
+									"then": { "$ref": "#/definitions/audioformats/modes/lpcm" },
+									"else": { 
+										"if": { "properties": { "audio_format": { "const": 2 }}},
+										"then": { "$ref": "#/definitions/audioformats/modes/aac" },
+										"else": {
+											"if": { "properties": { "audio_format": { "const": 3 }}},
+											"then": { "$ref": "#/definitions/audioformats/modes/ac3" }}
+									}
+								},
+								"latency": {
+									"type": "number",
+									"description": "Supported Latency"
+								}
+							}
+						}
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		},
+
+		"setVideoFormats": {
+			"description": "To Set the Video Formats",
+			"params": {
+				"type": "object",
+				"properties": {
+					"native": {
+						"$ref": "#/definitions/videoformats/native"
+					},
+					"display_mode_supported": {
+						"description": "Prefered display mode",
+						"type": "boolean"
+					},
+					"h264_codecs": {
+						"type": "array",
+						"description": "List of Supported Video Codecs",
+						"items": {
+							"type": "object",
+							"properties": {
+								"profile": {
+									"$ref": "#/definitions/videoformats/h264_codecs/profile"
+								},
+								"level": {
+									"$ref": "#/definitions/videoformats/h264_codecs/level"
+								},
+								"cea_mask": {
+									"$ref": "#/definitions/videoformats/h264_codecs/cea_mask"
+								},
+								"vesa_mask": {
+									"$ref": "#/definitions/videoformats/h264_codecs/vesa_mask"
+								},
+								"hh_mask": {
+									"$ref": "#/definitions/videoformats/h264_codecs/hh_mask"
+								},
+								"latency": {
+									"$ref": "#/definitions/videoformats/h264_codecs/latency"
+								},
+								"min_slice": {
+									"$ref": "#/definitions/videoformats/h264_codecs/min_slice"
+								},
+								"slice_encode": {
+									"$ref": "#/definitions/videoformats/h264_codecs/slice_encode"
+								},
+								"video_frame_skip_support": {
+									"$ref": "#/definitions/videoformats/h264_codecs/video_frame_skip_support"
+								},
+								"max_skip_intervals": {
+									"$ref": "#/definitions/videoformats/h264_codecs/max_skip_intervals"
+								},
+								"video_frame_rate_change_support": {
+									"$ref": "#/definitions/videoformats/h264_codecs/video_frame_rate_change_support"
+								}
+							}
+						}
+					}
+				}
+			},
+			"result": {
+				"type": "number"
+			},
+			"errors": []
+		}
+	},
+	"events": {
+		"onStateChange": {
+			"description": "Triggered when the Miracast Player Plugin changes the states. (INITIATED | INPROGRESS | PLAYING | IDLE/STOPPED(Default State))",
+			"params": {
+				"type": "object",
+				"properties": {
+					"mac": {
+						"$ref": "#/definitions/source_device/mac"
+					},
+					"name": {
+						"$ref": "#/definitions/source_device/name"
+					},
+					"state": {
+						"$ref": "#/definitions/player_state_params/current_state"
+					}
+				}
+			}
+		}
+	}
+}
